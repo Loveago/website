@@ -41,13 +41,13 @@ export default function RichEditor({ value, onChange }: { value: string; onChang
 
   useEffect(() => {
     if (!editor) return;
-    editor.commands.setContent(value || "", false);
+    editor.commands.setContent(value || "", { emitUpdate: false });
   }, [editor]);
 
   useEffect(() => {
     if (!editor) return;
     const current = editor.getHTML();
-    if (value !== current) editor.commands.setContent(value || "", false);
+    if (value !== current) editor.commands.setContent(value || "", { emitUpdate: false });
   }, [value, editor]);
 
   async function insertImage() {
