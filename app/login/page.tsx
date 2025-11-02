@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import type { Route } from "next";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,8 +30,9 @@ export default function LoginPage() {
       setError("Invalid email or password");
       return;
     }
-    const callbackUrl = params.get("callbackUrl") || "/dashboard";
-    router.push(callbackUrl);
+    const rawCallback = params.get("callbackUrl");
+    const safeCallback: Route = rawCallback && rawCallback.startsWith("/") ? (rawCallback as Route) : "/dashboard";
+    router.push(safeCallback);
   }
 
   return (
