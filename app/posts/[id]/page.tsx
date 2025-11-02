@@ -22,7 +22,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
         </h1>
         <p className="text-sm text-muted-foreground">
           by {post.author ? (
-            <Link href={{ pathname: "/user/[username]", query: { username: authorUsernameOrId! } }} className="hover:underline">{post.author.name ?? post.author.username}</Link>
+            <Link href={`/user/${authorUsernameOrId!}`} className="hover:underline">{post.author.name ?? post.author.username}</Link>
           ) : (
             "Unknown"
           )} • {new Date(post.createdAt).toLocaleString()}

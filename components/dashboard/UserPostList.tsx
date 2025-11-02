@@ -17,7 +17,7 @@ export default function UserPostList({ posts }: { posts: UserPost[] }) {
         <FadeIn key={p.id} delay={idx * 0.03}>
           <div className="rounded-2xl border p-3 shadow-sm transition-shadow hover:shadow-md">
             <div className="flex items-center justify-between">
-              <Link href={{ pathname: "/posts/[id]", query: { id: p.id } }} className="font-semibold hover:underline">{p.title}</Link>
+              <Link href={`/posts/${p.id}`} className="font-semibold hover:underline">{p.title}</Link>
               <form action={`/api/posts/${p.id}`} method="post" onSubmit={(e) => { if (!confirm("Delete this post?")) e.preventDefault(); }}>
                 <input type="hidden" name="_method" value="delete" />
                 <button className="text-sm text-destructive underline" formAction={`/api/posts/${p.id}`}>
