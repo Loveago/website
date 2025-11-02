@@ -1,0 +1,115 @@
+LAUNCH GUIDE (cPanel with Node.js + Next.js)
+
+Goal: Run this Next.js app on your cPanel hosting using the "Setup Node.js App" feature.
+If your cPanel does NOT have Node.js support, use the Vercel steps at the bottom.
+
+Part A — Prerequisites (one-time)
+1) Confirm your host supports Node.js apps in cPanel (looks like “Setup Node.js App” or “Application Manager”).
+2) Make sure Node.js 18 or newer is available in that tool.
+3) Have SSH enabled if possible (makes a couple commands easier). If not, you can use the cPanel Node UI actions.
+
+Part B — Upload the project to cPanel
+1) In cPanel, open File Manager.
+2) Create a folder for the app, e.g. `modern-blog` in your home directory.
+3) Zip your project locally (exclude `node_modules` to keep it small), then upload the zip into `modern-blog` and click Extract.
+   - Folder should contain: package.json, next.config.mjs, prisma/, app/, components/, public/, etc.
+
+Part C — Create environment file (.env)
+1) In `modern-blog`, create a file named `.env` with these lines (edit to your domain and secret):
+
+NEXTAUTH_URL=https://YOUR-DOMAIN.COM
+NEXTAUTH_SECRET=REPLACE_WITH_RANDOM_64_CHAR_SECRET
+DATABASE_URL=file:./prod.db
+
+# If you later switch back to Cloudinary, add keys here; not needed for local upload
+# CLOUDINARY_CLOUD_NAME=
+# CLOUDINARY_API_KEY=
+# CLOUDINARY_API_SECRET=
+
+2) Generate a safe secret locally if you need one:
+   - Windows PowerShell: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+Part D — Ensure upload folder exists (for avatars/images)
+1) In `modern-blog/public`, create a folder named `uploads`.
+2) Permissions: 755 is usually fine. The app will write files here.
+
+Part E — Create a simple server.js (startup file)
+1) In `modern-blog`, create `server.js` with this content:
+
+```js
+const { createServer } = require('http')
+const next = require('next')
+
+const port = process.env.PORT || 3000
+const dev = false
+const app = next({ dev })
+const handle = app.getRequestHandler()
+
+app.prepare().then(() => {
+  createServer((req, res) => handle(req, res)).listen(port, '0.0.0.0', () => {
+    console.log('✅ Next.js app ready on port', port)
+  })
+})
+```
+
+Part F — Create the Node.js App in cPanel
+1) Open “Setup Node.js App” (or “Application Manager”).
+2) Create Application:
+   - Application mode: Production
+   - Node.js version: 18.x
+   - Application root: the folder you created (e.g., `modern-blog`)
+   - Application URL: choose your domain/subdomain (e.g., https://YOUR-DOMAIN.COM)
+   - Application startup file: `server.js`
+   - Save/Create the app.
+
+Part G — Install, migrate, and build on the server
+Option 1 (cPanel UI):
+1) In the Node.js App page, click “Run NPM Install” (this runs `npm install`).
+2) If there is a “Run” button for commands, run these in order (if available):
+   - `npx prisma generate`
+   - `npx prisma migrate deploy`
+   - `npm run build`
+
+Option 2 (SSH):
+1) SSH into your server and run:
+   - `cd ~/modern-blog`
+   - `npm install`
+   - `npx prisma generate`
+   - `npx prisma migrate deploy`
+   - `npm run build`
+
+Part H — Start/Restart the app
+1) Back in the Node.js App page, click “Restart” (or “Start”) to launch the app.
+2) Visit your site URL. Example: https://YOUR-DOMAIN.COM
+
+Part I — Post‑launch checklist
+- Login: /login
+- Admin: /admin (use the seeded admin or create one locally and migrate your DB or create one directly in production)
+- Uploads: try changing your avatar on /dashboard/profile (it should save under /public/uploads)
+- Database file: `prod.db` will be created in your app folder (since DATABASE_URL is file:./prod.db)
+
+Troubleshooting
+- Blank/502 page: Click the app “Log” link in cPanel or check the Error Logs in cPanel. Common fixes:
+  - Ensure `.env` exists and values are correct (especially NEXTAUTH_URL and NEXTAUTH_SECRET).
+  - Ensure `npm run build` completed without errors.
+  - Ensure `public/uploads` exists and is writeable.
+  - Ensure Node version is 18+.
+- Prisma/DB issues: Run `npx prisma migrate deploy` and confirm `prod.db` is present.
+
+Optional: Custom domain/HTTPS
+- Make sure your domain points to the cPanel account.
+- Use cPanel’s SSL/TLS to issue a free AutoSSL certificate.
+- Keep NEXTAUTH_URL using https.
+
+ALTERNATIVE (If your cPanel has NO Node.js support)
+Use Vercel (easiest for Next.js):
+1) Create a Vercel account.
+2) Push this project to GitHub.
+3) Import the repo in Vercel.
+4) Set Environment Variables in Vercel Project Settings:
+   - NEXTAUTH_URL=https://YOUR-VERCEL-URL.vercel.app
+   - NEXTAUTH_SECRET=(random secret)
+   - DATABASE_URL=(Use a hosted DB; SQLite is not shared across builds. Recommended: Postgres on Vercel or Neon)
+5) Deploy. Vercel builds and hosts automatically.
+
+You’re done! If you get stuck, tell me the exact step and any error text you see, and I’ll fix it quickly.

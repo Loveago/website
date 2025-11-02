@@ -1,0 +1,11 @@
+.next
+node_modules
+.env
+*.log
+coverage
+dist
+out
+*.sqlite*
+public/uploads
+
+
