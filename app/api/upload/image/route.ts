@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/authOptions";
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { getCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -34,6 +35,21 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Try Cloudinary first if configured
+    const cl = getCloudinary();
+    if (cl) {
+      const mime = (file as any)?.type || "image/png";
+      const dataUri = `data:${mime};base64,${buffer.toString("base64")}`;
+      const result = await cl.uploader.upload(dataUri, {
+        folder: "uploads",
+        resource_type: "image",
+        overwrite: false,
+        invalidate: false,
+      });
+      return NextResponse.json({ url: result.secure_url });
+    }
+
+    // Fallback: save locally to public/uploads (ephemeral on Render)
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
     await fs.mkdir(uploadsDir, { recursive: true });
 
