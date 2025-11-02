@@ -12,6 +12,11 @@ export async function POST(req: Request) {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    // Ensure user exists to avoid foreign key errors (ephemeral DBs after deploy)
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found. Please sign in again." }, { status: 401 });
+    }
     const data = await req.json();
     const parsed = PostSchema.safeParse(data);
     if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -19,11 +24,12 @@ export async function POST(req: Request) {
     const safeHtml = sanitizeRichHtml(parsed.data.content);
 
     const post = await prisma.post.create({
-      data: { title: parsed.data.title, content: safeHtml, image: parsed.data.image, userId: session.user.id },
+      data: { title: parsed.data.title, content: safeHtml, image: parsed.data.image, userId: user.id },
     });
 
     return NextResponse.json({ post });
   } catch (e) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    const message = e instanceof Error ? e.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

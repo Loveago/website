@@ -25,6 +25,13 @@ export async function POST(req: Request) {
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { postId, content } = parsed.data;
-  const comment = await prisma.comment.create({ data: { postId, content, authorId: session.user.id } });
+  // Ensure user and post exist to avoid FK issues
+  const [user, post] = await Promise.all([
+    prisma.user.findUnique({ where: { id: session.user.id } }),
+    prisma.post.findUnique({ where: { id: postId } }),
+  ]);
+  if (!user) return NextResponse.json({ error: "User not found. Please sign in again." }, { status: 401 });
+  if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
+  const comment = await prisma.comment.create({ data: { postId, content, authorId: user.id } });
   return NextResponse.json({ comment });
 }
