@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 import { Home, Users, FileText, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { clsx } from "clsx";
+import type { Route } from "next";
+import type { LucideIcon } from "lucide-react";
 
-const links = [
+const links: { href: Route; label: string; icon: LucideIcon }[] = [
   { href: "/admin", label: "Dashboard", icon: Home },
   { href: "/admin/users", label: "Manage Users", icon: Users },
   { href: "/admin/posts", label: "Manage Posts", icon: FileText },
