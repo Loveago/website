@@ -64,13 +64,13 @@ export default function Comments({ postId }: { postId: string }) {
         {data?.comments?.map((c, idx) => (
           <motion.div key={c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.03 }} className="rounded-xl border bg-white/60 p-3 shadow-sm dark:bg-neutral-800/60">
             <div className="flex items-start gap-3">
-              <Link href={`/user/${c.author.username ?? c.author.id}`} className="shrink-0">
+              <Link href={{ pathname: "/user/[username]", params: { username: c.author.username ?? c.author.id } }} className="shrink-0">
                 <Avatar src={c.author.image} className="h-10 w-10" />
               </Link>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <div className="text-sm">
-                    <Link href={`/user/${c.author.username ?? c.author.id}`} className="font-medium hover:underline">
+                    <Link href={{ pathname: "/user/[username]", params: { username: c.author.username ?? c.author.id } }} className="font-medium hover:underline">
                       {c.author.name ?? c.author.username ?? "User"}
                     </Link>
                     <span className="ml-2 text-xs text-muted-foreground">{new Date(c.createdAt).toLocaleString()}</span>

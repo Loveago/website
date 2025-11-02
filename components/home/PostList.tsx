@@ -19,7 +19,7 @@ export default function PostList({ posts }: { posts: HomePost[] }) {
         <FadeIn key={p.id} delay={idx * 0.04}>
           <div className="rounded-2xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-teal-500/20 p-[1px] hover:shadow-lg transition-shadow">
             <div className="rounded-2xl border bg-card p-4">
-              <Link href={`/posts/${p.id}`} className="text-xl font-semibold hover:underline">
+              <Link href={{ pathname: "/posts/[id]", params: { id: p.id } }} className="text-xl font-semibold hover:underline">
                 {p.title}
               </Link>
               <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">

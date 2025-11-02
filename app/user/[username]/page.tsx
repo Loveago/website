@@ -45,7 +45,7 @@ export default async function PublicProfilePage({ params }: { params: { username
         <h2 className="text-lg font-semibold">Published Posts</h2>
         {user.posts.map((p: any) => (
           <div key={p.id} className="rounded-xl border p-3">
-            <Link href={`/posts/${p.id}`} className="font-medium hover:underline">{p.title}</Link>
+            <Link href={{ pathname: "/posts/[id]", params: { id: p.id } }} className="font-medium hover:underline">{p.title}</Link>
             <div className="text-xs text-muted-foreground">{new Date(p.createdAt).toLocaleString()}</div>
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.content.replace(/<[^>]+>/g, "")}</p>
           </div>

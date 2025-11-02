@@ -12,7 +12,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
   });
   if (!post || !post.published) return notFound();
 
-  const authorHref = `/user/${post.author?.username ?? post.author?.id}`;
+  const authorUsernameOrId = post.author?.username ?? post.author?.id;
 
   return (
     <FadeIn>
@@ -22,7 +22,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
         </h1>
         <p className="text-sm text-muted-foreground">
           by {post.author ? (
-            <Link href={authorHref} className="hover:underline">{post.author.name ?? post.author.username}</Link>
+            <Link href={{ pathname: "/user/[username]", params: { username: authorUsernameOrId! } }} className="hover:underline">{post.author.name ?? post.author.username}</Link>
           ) : (
             "Unknown"
           )} • {new Date(post.createdAt).toLocaleString()}
