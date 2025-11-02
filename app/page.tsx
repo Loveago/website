@@ -37,7 +37,7 @@ export default async function Home({ searchParams }: { searchParams: { page?: st
 
       <div className="flex items-center justify-between">
         <Link
-          href={`/?page=${Math.max(1, page - 1)}`}
+          href={{ pathname: "/", query: { page: String(Math.max(1, page - 1)) } }}
           className="inline-flex items-center rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2 text-sm text-white transition-all duration-300 hover:from-indigo-600 hover:to-purple-700 aria-disabled:opacity-50 aria-disabled:pointer-events-none"
           aria-disabled={page <= 1}
         >
@@ -45,7 +45,7 @@ export default async function Home({ searchParams }: { searchParams: { page?: st
         </Link>
         <span className="text-sm">Page {page} of {totalPages}</span>
         <Link
-          href={`/?page=${Math.min(totalPages, page + 1)}`}
+          href={{ pathname: "/", query: { page: String(Math.min(totalPages, page + 1)) } }}
           className="inline-flex items-center rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2 text-sm text-white transition-all duration-300 hover:from-indigo-600 hover:to-purple-700 aria-disabled:opacity-50 aria-disabled:pointer-events-none"
           aria-disabled={page >= totalPages}
         >
